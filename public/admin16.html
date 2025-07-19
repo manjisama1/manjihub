@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - ManjiHub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#25D366',
+            dark: '#181A20',
+            card: '#23272F',
+            textdark: '#F3F4F6',
+            accent: '#2D3748',
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s cubic-bezier(0.4,0,0.2,1)',
+            'slide-up': 'slideUp 0.5s cubic-bezier(0.4,0,0.2,1)',
+            'card-pop': 'cardPop 0.5s cubic-bezier(0.4,0,0.2,1)',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(40px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+            cardPop: {
+              '0%': { transform: 'scale(0.97)', opacity: '0' },
+              '100%': { transform: 'scale(1)', opacity: '1' },
+            },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { min-height: 100vh; background: linear-gradient(135deg, #e9f5ec 0%, #f7fafc 100%); }
+    .dark body { background: linear-gradient(135deg, #181A20 0%, #23272F 100%); }
+    .admin-card { animation: cardPop 0.5s cubic-bezier(0.4,0,0.2,1); }
+    .modal-bg { background: rgba(0,0,0,0.5); }
+    .modal-content { animation: slideUp 0.5s cubic-bezier(0.4,0,0.2,1); border-radius: 1.2rem; }
+    .fade-in { animation: fadeIn 0.5s cubic-bezier(0.4,0,0.2,1); }
+    .slide-up { animation: slideUp 0.5s cubic-bezier(0.4,0,0.2,1); }
+    .topbar { background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); }
+    .topbar .logo { font-size: 1.7rem; }
+    .topbar .logout-btn { background: rgba(255,255,255,0.1); }
+    .topbar .logout-btn:hover { background: rgba(255,255,255,0.2); }
+    .section-card { background: #fff; border-radius: 1.2rem; box-shadow: 0 4px 32px 0 rgba(0,0,0,0.07); padding: 2.5rem 2.5rem 2rem 2.5rem; margin-bottom: 2.5rem; }
+    .dark .section-card { background: #23272F; }
+    .admin-table th, .admin-table td { padding: 0.9rem 1.2rem; }
+    .admin-table th { background: #f7fafc; color: #222; font-weight: 600; }
+    .dark .admin-table th { background: #23272F; color: #F3F4F6; }
+    .admin-table tr { transition: background 0.2s; }
+    .admin-table tr:hover { background: #f0fdf4; }
+    .dark .admin-table tr:hover { background: #1a202c; }
+    .admin-table img { box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08); }
+    .admin-btn { transition: background 0.2s, color 0.2s; }
+    .admin-btn:active { transform: scale(0.97); }
+    .dark-mode, .dark .dark-mode { background-color: #181A20 !important; color: #F3F4F6 !important; }
+    .dark-mode .bg-white, .dark .bg-white { background-color: #23272F !important; }
+    .dark-mode .bg-gray-50, .dark .bg-gray-50 { background-color: #181A20 !important; }
+    .dark-mode .bg-gray-100, .dark .bg-gray-100 { background-color: #23272F !important; }
+    .dark-mode .text-gray-800, .dark .text-gray-800 { color: #F3F4F6 !important; }
+    .dark-mode .text-gray-700, .dark .text-gray-700 { color: #E2E8F0 !important; }
+    .dark-mode .text-gray-600, .dark .text-gray-600 { color: #CBD5E0 !important; }
+    .dark-mode .border-gray-300, .dark .border-gray-300 { border-color: #444 !important; }
+    @media (min-width: 1024px) {
+      .dashboard-content { max-width: 1200px; margin: 0 auto; padding-left: 2rem; padding-right: 2rem; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 dark:bg-dark font-sans antialiased transition-colors duration-500">
+  <div class="min-h-screen flex flex-col">
+    <!-- Topbar -->
+    <div class="topbar w-full flex items-center justify-between px-8 py-4 shadow-md mb-8" style="border-radius:0 0 1.5rem 1.5rem;">
+      <div class="flex items-center gap-3 logo text-white font-bold">
+        <i class="fab fa-whatsapp text-3xl"></i>
+        <span class="text-2xl tracking-wide">ManjiHub Admin</span>
+      </div>
+      <button id="logout-btn" class="logout-btn text-white px-5 py-2 rounded-lg font-semibold transition hidden">Logout</button>
+    </div>
+    <div class="dashboard-content w-full flex-1">
+      <div id="login-block" class="w-full max-w-sm mx-auto mt-12 bg-white dark:bg-card rounded-xl shadow-lg p-8 admin-card fade-in">
+        <h2 class="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-textdark">Admin Login</h2>
+        <form id="admin-login-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Username</label>
+            <input type="text" id="admin-username" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition bg-white dark:bg-card text-gray-900 dark:text-textdark focus:outline-none focus:shadow-lg cursor-pointer" required autocomplete="username">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Password</label>
+            <input type="password" id="admin-password" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition bg-white dark:bg-card text-gray-900 dark:text-textdark focus:outline-none focus:shadow-lg cursor-pointer" required autocomplete="current-password">
+          </div>
+          <div id="admin-login-error" class="text-red-500 text-sm hidden">Invalid credentials</div>
+          <button type="submit" class="w-full bg-primary hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg transition shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+            <i class="fas fa-sign-in-alt"></i> Login
+          </button>
+        </form>
+      </div>
+      <div id="admin-dashboard" class="hidden w-full mt-0 admin-card fade-in">
+        <div class="section-card mb-8">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-textdark mb-4">Contact & Social Media Info</h3>
+          <form id="contact-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-base font-medium text-gray-700 dark:text-gray-200 mb-1">Email</label>
+              <input type="email" id="contact-email" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition bg-white dark:bg-card text-gray-900 dark:text-textdark focus:outline-none focus:shadow-lg cursor-pointer text-lg" required>
+            </div>
+            <div>
+              <label class="block text-base font-medium text-gray-700 dark:text-gray-200 mb-1">Instagram</label>
+              <input type="text" id="contact-insta" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition bg-white dark:bg-card text-gray-900 dark:text-textdark focus:outline-none focus:shadow-lg cursor-pointer text-lg">
+            </div>
+            <div>
+              <label class="block text-base font-medium text-gray-700 dark:text-gray-200 mb-1">Telegram</label>
+              <input type="text" id="contact-telegram" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition bg-white dark:bg-card text-gray-900 dark:text-textdark focus:outline-none focus:shadow-lg cursor-pointer text-lg">
+            </div>
+            <div>
+              <label class="block text-base font-medium text-gray-700 dark:text-gray-200 mb-1">Facebook</label>
+              <input type="text" id="contact-facebook" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition bg-white dark:bg-card text-gray-900 dark:text-textdark focus:outline-none focus:shadow-lg cursor-pointer text-lg">
+            </div>
+            <div>
+              <label class="block text-base font-medium text-gray-700 dark:text-gray-200 mb-1">X (Twitter)</label>
+              <input type="text" id="contact-x" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition bg-white dark:bg-card text-gray-900 dark:text-textdark focus:outline-none focus:shadow-lg cursor-pointer text-lg">
+            </div>
+            <div class="md:col-span-2">
+              <button type="submit" class="w-full bg-primary hover:bg-green-600 text-white font-medium py-3 rounded transition shadow cursor-pointer text-lg">Save Contact</button>
+            </div>
+          </form>
+        </div>
+        <div class="section-card slide-up">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-textdark">Groups</h2>
+            <button id="add-group-btn" class="bg-primary hover:bg-green-600 text-white px-4 py-2 rounded transition shadow admin-btn cursor-pointer text-lg">+ Add Group</button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full bg-white dark:bg-card rounded-xl shadow-md admin-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Description</th>
+                  <th>Link</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-groups-list"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal for Add/Edit Group -->
+    <div id="group-modal-bg" class="fixed inset-0 flex items-center justify-center z-50 hidden modal-bg">
+      <div class="modal-content bg-white dark:bg-card rounded-xl shadow-lg p-8 max-w-md w-full relative">
+        <button id="close-group-modal" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-lg cursor-pointer"><i class="fas fa-times"></i></button>
+        <h3 id="group-modal-title" class="text-xl font-bold mb-4 text-gray-800 dark:text-textdark">Add Group</h3>
+        <form id="group-form" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Group Name</label>
+            <input type="text" id="group-name" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition bg-white dark:bg-card text-gray-900 dark:text-textdark focus:outline-none focus:shadow-lg cursor-pointer" required>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Category</label>
+            <input type="text" id="group-category" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition bg-white dark:bg-card text-gray-900 dark:text-textdark focus:outline-none focus:shadow-lg cursor-pointer">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Description</label>
+            <textarea id="group-description" rows="3" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition bg-white dark:bg-card text-gray-900 dark:text-textdark focus:outline-none focus:shadow-lg cursor-pointer" required></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">WhatsApp Group Link</label>
+            <input type="url" id="group-link" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition bg-white dark:bg-card text-gray-900 dark:text-textdark focus:outline-none focus:shadow-lg cursor-pointer" required placeholder="https://chat.whatsapp.com/...">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Image URL</label>
+            <input type="url" id="group-image" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition bg-white dark:bg-card text-gray-900 dark:text-textdark focus:outline-none focus:shadow-lg cursor-pointer" placeholder="https://...">
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Leave blank for default WhatsApp icon.</p>
+          </div>
+          <button type="submit" class="w-full bg-primary hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg transition shadow-lg flex items-center justify-center gap-2 cursor-pointer">
+            <i class="fas fa-save"></i> Save Group
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+  <script src="groups.js"></script>
+  <script>
+    // --- Contact Info Logic ---
+    async function renderContactForm() {
+      const info = await getContact();
+      document.getElementById('contact-email').value = info.email || '';
+      document.getElementById('contact-insta').value = info.insta || '';
+      document.getElementById('contact-telegram').value = info.telegram || '';
+      document.getElementById('contact-facebook').value = info.facebook || '';
+      document.getElementById('contact-x').value = info.x || '';
+    }
+    document.getElementById('contact-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('contact-email').value.trim();
+      const insta = document.getElementById('contact-insta').value.trim();
+      const telegram = document.getElementById('contact-telegram').value.trim();
+      const facebook = document.getElementById('contact-facebook').value.trim();
+      const x = document.getElementById('contact-x').value.trim();
+      await saveContact({ email, insta, telegram, facebook, x });
+      alert('Contact info saved!');
+    };
+    // Dark mode on admin page (handled by system or previous setting)
+    // --- Admin Login Logic ---
+    const loginBlock = document.getElementById('login-block');
+    const dashboard = document.getElementById('admin-dashboard');
+    const loginForm = document.getElementById('admin-login-form');
+    const loginError = document.getElementById('admin-login-error');
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const user = document.getElementById('admin-username').value.trim();
+      const pass = document.getElementById('admin-password').value;
+      if (user === ADMIN_USER && pass === ADMIN_PASS) {
+        loginBlock.classList.add('hidden');
+        dashboard.classList.remove('hidden');
+        document.getElementById('logout-btn').classList.remove('hidden');
+        await renderAdminGroups('admin-groups-list', onEditGroup, onDeleteGroup);
+        await renderContactForm();
+      } else {
+        loginError.classList.remove('hidden');
+      }
+    });
+    // --- Admin Dashboard Logic ---
+    document.getElementById('logout-btn').onclick = function() {
+      dashboard.classList.add('hidden');
+      loginBlock.classList.remove('hidden');
+      loginForm.reset();
+      this.classList.add('hidden');
+    };
+    document.getElementById('add-group-btn').onclick = function() {
+      openGroupModal();
+    };
+    // Modal logic
+    const groupModalBg = document.getElementById('group-modal-bg');
+    const closeGroupModalBtn = document.getElementById('close-group-modal');
+    closeGroupModalBtn.onclick = function() { groupModalBg.classList.add('hidden'); };
+    groupModalBg.onclick = function(e) { if (e.target === groupModalBg) groupModalBg.classList.add('hidden'); };
+    let editIndex = null;
+    function openGroupModal(group) {
+      groupModalBg.classList.remove('hidden');
+      document.getElementById('group-modal-title').textContent = group ? 'Edit Group' : 'Add Group';
+      document.getElementById('group-name').value = group ? group.name : '';
+      document.getElementById('group-category').value = group ? group.category : '';
+      document.getElementById('group-description').value = group ? group.description : '';
+      document.getElementById('group-link').value = group ? group.link : '';
+      document.getElementById('group-image').value = group ? group.image : '';
+    }
+    async function onEditGroup(idx) {
+      const groups = await getGroups();
+      editIndex = idx;
+      openGroupModal(groups[idx]);
+    }
+    async function onDeleteGroup(idx) {
+      if (!confirm('Delete this group?')) return;
+      const groups = await getGroups();
+      groups.splice(idx, 1);
+      await saveGroups(groups);
+      await renderAdminGroups('admin-groups-list', onEditGroup, onDeleteGroup);
+    }
+    document.getElementById('group-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('group-name').value.trim();
+      const category = document.getElementById('group-category').value.trim();
+      const description = document.getElementById('group-description').value.trim();
+      const link = document.getElementById('group-link').value.trim();
+      const image = document.getElementById('group-image').value.trim();
+      if (!name || !link || !description) return alert('Name, link, and description are required.');
+      const groups = await getGroups();
+      const group = { name, category, description, link, image };
+      if (editIndex !== null) {
+        groups[editIndex] = group;
+        editIndex = null;
+      } else {
+        groups.push(group);
+      }
+      await saveGroups(groups);
+      groupModalBg.classList.add('hidden');
+      await renderAdminGroups('admin-groups-list', onEditGroup, onDeleteGroup);
+      this.reset();
+    };
+  </script>
+</body>
+</html> 

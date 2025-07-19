@@ -1,0 +1,21 @@
+{
+  "name": "manjihub",
+  "version": "1.0.0",
+  "description": "WhatsApp Groups Hub with Admin Dashboard",
+  "main": "api/groups.js",
+  "scripts": {
+    "start": "vercel dev",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "@octokit/rest": "^20.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["whatsapp", "groups", "admin", "dashboard"],
+  "author": "ManjiHub",
+  "license": "MIT"
+} 

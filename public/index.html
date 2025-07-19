@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Groups Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#25D366',
+                        dark: '#181A20',
+                        card: '#23272F',
+                        textdark: '#F3F4F6',
+                        accent: '#2D3748',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.7s cubic-bezier(0.4,0,0.2,1)',
+                        'slide-up': 'slideUp 0.7s cubic-bezier(0.4,0,0.2,1)',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'card-pop': 'cardPop 0.5s cubic-bezier(0.4,0,0.2,1)',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(40px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        cardPop: {
+                            '0%': { transform: 'scale(0.95)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .group-card { transition: transform 0.3s, box-shadow 0.3s; animation: cardPop 0.7s cubic-bezier(0.4,0,0.2,1); }
+        .group-card:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 16px 32px rgba(0,0,0,0.16); }
+        .menu-item { position: relative; }
+        .menu-item::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -2px; left: 0; background-color: #25D366; transition: width 0.3s ease; }
+        .menu-item:hover::after { width: 100%; }
+        .section-animate { animation: fadeIn 1s cubic-bezier(0.4,0,0.2,1); }
+        .section-title { animation: slideUp 0.8s cubic-bezier(0.4,0,0.2,1); }
+        .chevron-btn { transition: transform 0.3s; }
+        .chevron-btn.rotate-180 { transform: rotate(180deg); }
+        .desc-slide { transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1); }
+        .tooltip { visibility: hidden; opacity: 0; transition: opacity 0.3s; }
+        .has-tooltip:hover .tooltip { visibility: visible; opacity: 1; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; }
+        input:checked + .slider { background-color: #25D366; }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .slider.round { border-radius: 34px; }
+        .slider.round:before { border-radius: 50%; }
+        /* Improved dark mode styles */
+        .dark-mode, .dark .dark-mode { background-color: #181A20 !important; color: #F3F4F6 !important; }
+        .dark-mode .bg-white, .dark .bg-white { background-color: #23272F !important; }
+        .dark-mode .bg-gray-50, .dark .bg-gray-50 { background-color: #181A20 !important; }
+        .dark-mode .bg-gray-100, .dark .bg-gray-100 { background-color: #23272F !important; }
+        .dark-mode .text-gray-800, .dark .text-gray-800 { color: #F3F4F6 !important; }
+        .dark-mode .text-gray-700, .dark .text-gray-700 { color: #E2E8F0 !important; }
+        .dark-mode .text-gray-600, .dark .text-gray-600 { color: #CBD5E0 !important; }
+        .dark-mode .group-card, .dark .group-card { background: #23272F !important; }
+        .dark-mode .border-gray-300, .dark .border-gray-300 { border-color: #444 !important; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-dark font-sans antialiased transition-colors duration-500">
+    <!-- Header -->
+    <header class="bg-white dark:bg-card shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <button id="sidebarToggle" class="text-gray-700 focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <i class="fab fa-whatsapp text-3xl text-primary"></i>
+                    <h1 class="text-xl font-bold text-gray-800 dark:text-textdark">ManjiHub</h1>
+                </div>
+            </div>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#home" class="menu-item text-gray-700 dark:text-textdark hover:text-primary transition">Home</a>
+                <a href="#groups" class="menu-item text-gray-700 dark:text-textdark hover:text-primary transition">Groups</a>
+                <a href="#support" class="menu-item text-gray-700 dark:text-textdark hover:text-primary transition">Support</a>
+            </nav>
+        </div>
+    </header>
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-card shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out z-50">
+        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-semibold dark:text-textdark">Menu</h3>
+            <button id="closeSidebar" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="p-4 space-y-4">
+            <a href="#home" class="block py-2 px-4 rounded hover:bg-gray-100 dark:hover:bg-card">Home</a>
+            <a href="#groups" class="block py-2 px-4 rounded hover:bg-gray-100 dark:hover:bg-card">Groups</a>
+            <a href="#support" class="block py-2 px-4 rounded hover:bg-gray-100 dark:hover:bg-card">Support</a>
+            <div class="pt-4 border-t border-gray-200">
+                <div class="flex items-center justify-between py-2 px-4">
+                    <span class="dark:text-textdark">Theme</span>
+                    <label class="switch">
+                        <input type="checkbox" id="sidebarThemeToggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- Hero Section -->
+    <section id="home" class="py-20 bg-gradient-to-r from-primary to-dark text-white section-animate">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 section-title">Discover Amazing WhatsApp Groups</h1>
+            <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto animate-fade-in opacity-90">
+                Join thousands of active communities on various topics. Connect, share and grow together.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 animate-slide-up">
+                <a href="#groups" class="bg-white dark:bg-card text-primary font-semibold px-6 py-3 rounded-full hover:bg-gray-100 dark:hover:bg-accent transition shadow-lg">
+                    Explore Groups
+                </a>
+            </div>
+        </div>
+    </section>
+    <!-- Groups Section -->
+    <section id="groups" class="py-16 bg-gray-50 dark:bg-dark section-animate">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-textdark mb-4 section-title">All Groups</h2>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Browse through our curated collection of active WhatsApp groups. Click to join or copy the link.
+                </p>
+            </div>
+            <!-- Dynamic Groups Grid -->
+            <div id="groups-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+    </section>
+    <!-- Support Section -->
+    <section id="support" class="py-16 bg-white dark:bg-card section-animate">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 dark:text-textdark mb-4 section-title">Support & Contact</h2>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Have questions or want to get in touch? Here's how you can reach us.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Email Support -->
+                <div class="bg-gray-50 dark:bg-accent p-6 rounded-xl text-center hover:shadow-lg transition group section-animate">
+                    <div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i class="far fa-envelope text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-textdark mb-2">Email Us</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Get detailed support via email</p>
+                    <a id="contact-email-link" href="#" class="text-primary font-medium hover:underline">support@manjihub.com</a>
+                </div>
+                <!-- Telegram -->
+                <div class="bg-gray-50 dark:bg-accent p-6 rounded-xl text-center hover:shadow-lg transition group section-animate">
+                    <div class="w-16 h-16 bg-blue-500 bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fab fa-telegram text-blue-500 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-textdark mb-2">Telegram</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Chat with us on Telegram</p>
+                    <a id="contact-telegram-link" href="#" target="_blank" class="text-blue-500 font-medium hover:underline">@manjihub</a>
+                </div>
+                <!-- Instagram -->
+                <div class="bg-gray-50 dark:bg-accent p-6 rounded-xl text-center hover:shadow-lg transition group section-animate">
+                    <div class="w-16 h-16 bg-pink-500 bg-opacity-10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fab fa-instagram text-pink-500 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-textdark mb-2">Instagram</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">Follow us for updates</p>
+                    <a id="contact-insta-link" href="#" target="_blank" class="text-pink-500 font-medium hover:underline">@manjihub</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12 section-animate">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fab fa-whatsapp text-3xl text-primary"></i>
+                        <h3 class="text-xl font-bold">ManjiHub</h3>
+                    </div>
+                    <p class="text-gray-400">
+                        Connecting people through amazing WhatsApp communities since 2023.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-gray-400 hover:text-primary transition">Home</a></li>
+                        <li><a href="#groups" class="text-gray-400 hover:text-primary transition">Groups</a></li>
+                        <li><a href="#support" class="text-gray-400 hover:text-primary transition">Support</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Support</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#support" class="text-gray-400 hover:text-primary transition">Help Center</a></li>
+                        <li><a href="#support" class="text-gray-400 hover:text-primary transition">Contact Us</a></li>
+                        <li><a href="#support" class="text-gray-400 hover:text-primary transition">Privacy Policy</a></li>
+                        <li><a href="#support" class="text-gray-400 hover:text-primary transition">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Connect With Us</h4>
+                    <div class="flex space-x-4">
+                        <a id="footer-facebook-link" href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-600 transition" target="_blank">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a id="footer-x-link" href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-black transition" target="_blank">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1227" fill="currentColor" class="w-5 h-5"><path d="M1199.61 21.5h-273.2L600.01 491.7 273.59 21.5H0l422.6 610.2L0 1205.5h273.59l326.42-470.2 326.4 470.2h273.2l-422.6-594.8 422.6-610.2z"/></svg>
+                        </a>
+                        <a id="footer-insta-link" href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-pink-500 transition" target="_blank">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a id="footer-telegram-link" href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-500 transition" target="_blank">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-10 pt-6 text-center text-gray-400">
+                <p>&copy; 2023 manjihub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="app.js"></script>
+    <script src="groups.js"></script>
+    <script>
+        // Improved dark mode logic
+        function setDarkMode(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        // On load, set dark mode if needed
+        if (localStorage.getItem('theme') === 'dark') {
+            setDarkMode(true);
+            setTimeout(() => {
+                const themeToggle = document.getElementById('themeToggle');
+                const sidebarThemeToggle = document.getElementById('sidebarThemeToggle');
+                if (themeToggle) themeToggle.checked = true;
+                if (sidebarThemeToggle) sidebarThemeToggle.checked = true;
+            }, 100);
+        }
+        // Theme toggle event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
+            const sidebarThemeToggle = document.getElementById('sidebarThemeToggle');
+            if (themeToggle) themeToggle.addEventListener('change', function() {
+                setDarkMode(this.checked);
+                if (sidebarThemeToggle) sidebarThemeToggle.checked = this.checked;
+            });
+            if (sidebarThemeToggle) sidebarThemeToggle.addEventListener('change', function() {
+                setDarkMode(this.checked);
+                if (themeToggle) themeToggle.checked = this.checked;
+            });
+            // Copy to clipboard function
+            window.copyToClipboard = function(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Link copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            };
+            // Sidebar toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    document.getElementById('sidebar').classList.remove('-translate-x-full');
+                });
+            }
+            const closeSidebar = document.getElementById('closeSidebar');
+            if (closeSidebar) {
+                closeSidebar.addEventListener('click', function() {
+                    document.getElementById('sidebar').classList.add('-translate-x-full');
+                });
+            }
+            renderGroups('groups-list');
+            // --- Dynamic Contact Info ---
+            getContact().then(contact => {
+            // Email
+            const emailLink = document.getElementById('contact-email-link');
+            if (contact.email) {
+                emailLink.href = 'mailto:' + contact.email;
+                emailLink.textContent = contact.email;
+            } else {
+                emailLink.href = 'mailto:support@manjihub.com';
+                emailLink.textContent = 'support@manjihub.com';
+            }
+            // Telegram
+            const telegramLink = document.getElementById('contact-telegram-link');
+            if (contact.telegram) {
+                let tg = contact.telegram.startsWith('http') ? contact.telegram : 'https://t.me/' + contact.telegram.replace(/^@/, '');
+                telegramLink.href = tg;
+                telegramLink.textContent = contact.telegram.startsWith('@') ? contact.telegram : '@' + contact.telegram.replace(/^@/, '');
+            } else {
+                telegramLink.href = 'https://t.me/manjihub';
+                telegramLink.textContent = '@manjihub';
+            }
+            // Instagram
+            const instaLink = document.getElementById('contact-insta-link');
+            if (contact.insta) {
+                let ig = contact.insta.startsWith('http') ? contact.insta : 'https://instagram.com/' + contact.insta.replace(/^@/, '');
+                instaLink.href = ig;
+                instaLink.textContent = contact.insta.startsWith('@') ? contact.insta : '@' + contact.insta.replace(/^@/, '');
+            } else {
+                instaLink.href = 'https://instagram.com/manjihub';
+                instaLink.textContent = '@manjihub';
+            }
+            // --- Footer Socials ---
+            // Facebook
+            const fbLink = document.getElementById('footer-facebook-link');
+            fbLink.href = contact.facebook && contact.facebook.trim() ? contact.facebook : '#';
+            // X (Twitter)
+            const xLink = document.getElementById('footer-x-link');
+            if (contact.x) {
+                let xurl = contact.x.startsWith('http') ? contact.x : 'https://x.com/' + contact.x.replace(/^@/, '');
+                xLink.href = xurl;
+            } else {
+                xLink.href = 'https://x.com/';
+            }
+            // Instagram
+            const fInstaLink = document.getElementById('footer-insta-link');
+            if (contact.insta) {
+                let ig = contact.insta.startsWith('http') ? contact.insta : 'https://instagram.com/' + contact.insta.replace(/^@/, '');
+                fInstaLink.href = ig;
+            } else {
+                fInstaLink.href = 'https://instagram.com/manjihub';
+            }
+            // Telegram
+            const fTgLink = document.getElementById('footer-telegram-link');
+            if (contact.telegram) {
+                let tg = contact.telegram.startsWith('http') ? contact.telegram : 'https://t.me/' + contact.telegram.replace(/^@/, '');
+                fTgLink.href = tg;
+            } else {
+                fTgLink.href = 'https://t.me/manjihub';
+            }
+            });
+        });
+    </script>
+</body>
+</html>
