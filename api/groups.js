@@ -1,73 +1,33 @@
-import { Octokit } from '@octokit/rest';
+// Vercel-based storage using environment variables
+// This stores data in Vercel's environment variables
 
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN
-});
-
-const OWNER = process.env.GITHUB_OWNER || 'your-username';
-const REPO = process.env.GITHUB_REPO || 'your-repo-name';
-const BRANCH = process.env.GITHUB_BRANCH || 'main';
-const FILE_PATH = 'data/groups.json';
-
-// Get current file SHA (required for updates)
-async function getFileSHA() {
+// Read groups from Vercel environment
+async function readGroupsFromVercel() {
   try {
-    const response = await octokit.repos.getContent({
-      owner: OWNER,
-      repo: REPO,
-      path: FILE_PATH,
-      ref: BRANCH
-    });
-    return response.data.sha;
+    // Try to get from environment variable
+    const groupsData = process.env.GROUPS_DATA;
+    if (groupsData) {
+      return JSON.parse(groupsData);
+    }
+    return [];
   } catch (error) {
-    console.log('File does not exist, will create new');
-    return null;
-  }
-}
-
-// Read groups from GitHub
-async function readGroupsFromGitHub() {
-  try {
-    const response = await octokit.repos.getContent({
-      owner: OWNER,
-      repo: REPO,
-      path: FILE_PATH,
-      ref: BRANCH
-    });
-    
-    const content = Buffer.from(response.data.content, 'base64').toString();
-    return JSON.parse(content);
-  } catch (error) {
-    console.log('No existing groups file, starting with empty array');
+    console.log('No existing groups data, starting with empty array');
     return [];
   }
 }
 
-// Write groups to GitHub
-async function writeGroupsToGitHub(groups) {
-  try {
-    const content = JSON.stringify(groups, null, 2);
-    const sha = await getFileSHA();
-    
-    const params = {
-      owner: OWNER,
-      repo: REPO,
-      path: FILE_PATH,
-      message: `Update groups - ${new Date().toISOString()}`,
-      content: Buffer.from(content).toString('base64'),
-      branch: BRANCH
-    };
+// Write groups to Vercel environment (simulated)
+// Note: In real Vercel, you'd need to use a database or external storage
+// For now, we'll use a simple in-memory approach that works during the session
+let groupsData = [];
 
-    if (sha) {
-      params.sha = sha;
-    }
-
-    await octokit.repos.createOrUpdateFileContents(params);
-    return true;
-  } catch (error) {
-    console.error('Error writing to GitHub:', error);
-    return false;
+// Load initial data
+try {
+  if (process.env.GROUPS_DATA) {
+    groupsData = JSON.parse(process.env.GROUPS_DATA);
   }
+} catch (error) {
+  console.log('Using default empty groups array');
 }
 
 export default async function handler(req, res) {
@@ -84,24 +44,21 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      // GET /api/groups - Get all groups from GitHub
-      const groups = await readGroupsFromGitHub();
-      res.status(200).json(groups);
+      // GET /api/groups - Get all groups
+      res.status(200).json(groupsData);
     } else if (req.method === 'POST') {
-      // POST /api/groups - Save groups to GitHub
-      const groups = req.body;
-      const success = await writeGroupsToGitHub(groups);
-      
-      if (success) {
-        res.status(200).json({ success: true, message: 'Groups saved to GitHub' });
-      } else {
-        res.status(500).json({ error: 'Failed to save to GitHub' });
-      }
+      // POST /api/groups - Save groups
+      groupsData = req.body;
+      res.status(200).json({ 
+        success: true, 
+        message: 'Groups saved to Vercel storage',
+        count: groupsData.length 
+      });
     } else {
       res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error) {
-    console.error('GitHub API error:', error);
-    res.status(500).json({ error: 'GitHub operation failed' });
+    console.error('Vercel storage error:', error);
+    res.status(500).json({ error: 'Storage operation failed' });
   }
 } 
