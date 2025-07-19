@@ -1,1 +1,58 @@
-[] 
+[
+  {
+    "name": "Tech Enthusiasts",
+    "category": "Technology",
+    "description": "A community for tech lovers to discuss the latest trends, gadgets, and innovations. Share your knowledge and learn from others!",
+    "link": "https://chat.whatsapp.com/techgroup1",
+    "image": "https://img.icons8.com/color/96/000000/technology.png"
+  },
+  {
+    "name": "Startup Founders",
+    "category": "Business",
+    "description": "Network with fellow entrepreneurs, share insights and grow your business together. Perfect for startup founders and business enthusiasts.",
+    "link": "https://chat.whatsapp.com/startupgroup1",
+    "image": "https://img.icons8.com/color/96/000000/business.png"
+  },
+  {
+    "name": "Digital Marketing Pros",
+    "category": "Marketing",
+    "description": "Learn and share digital marketing strategies, tools and success stories with experts. From SEO to social media marketing.",
+    "link": "https://chat.whatsapp.com/marketinggroup1",
+    "image": "https://img.icons8.com/color/96/000000/marketing.png"
+  },
+  {
+    "name": "Fitness Motivation",
+    "category": "Health",
+    "description": "Get fit together! Share workouts, nutrition tips and motivate each other to stay healthy. All fitness levels welcome.",
+    "link": "https://chat.whatsapp.com/fitnessgroup1",
+    "image": "https://img.icons8.com/color/96/000000/fitness.png"
+  },
+  {
+    "name": "Book Lovers Club",
+    "category": "Entertainment",
+    "description": "Discuss your favorite books, share recommendations and participate in reading challenges. For all bookworms out there!",
+    "link": "https://chat.whatsapp.com/bookgroup1",
+    "image": "https://img.icons8.com/color/96/000000/book.png"
+  },
+  {
+    "name": "Coding Help Desk",
+    "category": "Technology",
+    "description": "Get help with your coding problems, share resources and collaborate on projects. All programming languages welcome!",
+    "link": "https://chat.whatsapp.com/codinggroup1",
+    "image": "https://img.icons8.com/color/96/000000/code.png"
+  },
+  {
+    "name": "Travel Adventures",
+    "category": "Lifestyle",
+    "description": "Share travel experiences, tips, and plan trips together. From budget travel to luxury adventures.",
+    "link": "https://chat.whatsapp.com/travelgroup1",
+    "image": "https://img.icons8.com/color/96/000000/travel.png"
+  },
+  {
+    "name": "Photography Enthusiasts",
+    "category": "Arts",
+    "description": "Share your photography, get feedback, and learn new techniques. From beginners to professionals.",
+    "link": "https://chat.whatsapp.com/photogroup1",
+    "image": "https://img.icons8.com/color/96/000000/camera.png"
+  }
+] 
