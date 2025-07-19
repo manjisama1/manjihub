@@ -19,6 +19,18 @@ function saveGroupsLocal(groups) {
   localStorage.setItem(GROUPS_KEY, JSON.stringify(groups));
 }
 
+// --- Utility ---
+function escapeHTML(str) {
+  return (str || '').replace(/[&<>"']/g, function(tag) {
+    const chars = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}; return chars[tag] || tag;
+  });
+}
+
+// Add this function to convert newlines to <br>
+function nl2br(str) {
+  return (str || '').replace(/\n/g, '<br>');
+}
+
 // --- Render Groups (for index.html) ---
 async function renderGroups(containerId) {
   const groups = await getGroups();
@@ -43,7 +55,7 @@ async function renderGroups(containerId) {
         </div>
         <div class="desc-slide max-h-0 overflow-hidden transition-all duration-500 ease-in-out">
           <div class="py-2">
-            <p class="text-gray-700 dark:text-gray-200 mb-4">${escapeHTML(g.description || 'No description')}</p>
+            <p class="text-gray-700 dark:text-gray-200 mb-4">${nl2br(escapeHTML(g.description || 'No description'))}</p>
             <a href="${g.link}" target="_blank" class="bg-primary hover:bg-green-600 text-white font-medium py-2 px-6 rounded-lg transition shadow-lg flex items-center justify-center gap-2"><i class="fab fa-whatsapp"></i> Join Group</a>
           </div>
         </div>
@@ -96,7 +108,7 @@ async function renderAdminGroups(containerId, onEdit, onDelete) {
       <td class="py-2 px-2"><img src="${g.image || 'https://static.whatsapp.net/rsrc.php/v3/yz/r/36B424nhiLr.png'}" class="w-10 h-10 rounded-full object-cover border-2 border-primary shadow-sm"></td>
       <td class="py-2 px-2 text-gray-800 dark:text-textdark">${escapeHTML(g.name)}</td>
       <td class="py-2 px-2 text-gray-600 dark:text-gray-400">${escapeHTML(g.category || '')}</td>
-      <td class="py-2 px-2 text-gray-600 dark:text-gray-400">${escapeHTML(g.description || '')}</td>
+      <td class="py-2 px-2 text-gray-600 dark:text-gray-400">${nl2br(escapeHTML(g.description || ''))}</td>
       <td class="py-2 px-2"><a href="${g.link}" target="_blank" class="text-primary underline">Link</a></td>
       <td class="py-2 px-2 flex gap-2">
         <button class="edit-btn bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded" data-index="${i}"><i class="fas fa-edit"></i></button>
@@ -116,12 +128,5 @@ async function renderAdminGroups(containerId, onEdit, onDelete) {
       const idx = this.getAttribute('data-index');
       onDelete(idx);
     });
-  });
-}
-
-// --- Utility ---
-function escapeHTML(str) {
-  return (str || '').replace(/[&<>"']/g, function(tag) {
-    const chars = {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}; return chars[tag] || tag;
   });
 } 

@@ -300,63 +300,63 @@
             renderGroups('groups-list');
             // --- Dynamic Contact Info ---
             getContact().then(contact => {
-            // Email
-            const emailLink = document.getElementById('contact-email-link');
-            if (contact.email) {
-                emailLink.href = 'mailto:' + contact.email;
-                emailLink.textContent = contact.email;
-            } else {
-                emailLink.href = 'mailto:support@manjihub.com';
-                emailLink.textContent = 'support@manjihub.com';
-            }
-            // Telegram
-            const telegramLink = document.getElementById('contact-telegram-link');
-            if (contact.telegram) {
-                let tg = contact.telegram.startsWith('http') ? contact.telegram : 'https://t.me/' + contact.telegram.replace(/^@/, '');
-                telegramLink.href = tg;
-                telegramLink.textContent = contact.telegram.startsWith('@') ? contact.telegram : '@' + contact.telegram.replace(/^@/, '');
-            } else {
-                telegramLink.href = 'https://t.me/manjihub';
-                telegramLink.textContent = '@manjihub';
-            }
-            // Instagram
-            const instaLink = document.getElementById('contact-insta-link');
-            if (contact.insta) {
-                let ig = contact.insta.startsWith('http') ? contact.insta : 'https://instagram.com/' + contact.insta.replace(/^@/, '');
-                instaLink.href = ig;
-                instaLink.textContent = contact.insta.startsWith('@') ? contact.insta : '@' + contact.insta.replace(/^@/, '');
-            } else {
-                instaLink.href = 'https://instagram.com/manjihub';
-                instaLink.textContent = '@manjihub';
-            }
-            // --- Footer Socials ---
-            // Facebook
-            const fbLink = document.getElementById('footer-facebook-link');
-            fbLink.href = contact.facebook && contact.facebook.trim() ? contact.facebook : '#';
-            // X (Twitter)
-            const xLink = document.getElementById('footer-x-link');
-            if (contact.x) {
-                let xurl = contact.x.startsWith('http') ? contact.x : 'https://x.com/' + contact.x.replace(/^@/, '');
-                xLink.href = xurl;
-            } else {
-                xLink.href = 'https://x.com/';
-            }
-            // Instagram
-            const fInstaLink = document.getElementById('footer-insta-link');
-            if (contact.insta) {
-                let ig = contact.insta.startsWith('http') ? contact.insta : 'https://instagram.com/' + contact.insta.replace(/^@/, '');
-                fInstaLink.href = ig;
-            } else {
-                fInstaLink.href = 'https://instagram.com/manjihub';
-            }
-            // Telegram
-            const fTgLink = document.getElementById('footer-telegram-link');
-            if (contact.telegram) {
-                let tg = contact.telegram.startsWith('http') ? contact.telegram : 'https://t.me/' + contact.telegram.replace(/^@/, '');
-                fTgLink.href = tg;
-            } else {
-                fTgLink.href = 'https://t.me/manjihub';
-            }
+                // Email
+                const emailLink = document.getElementById('contact-email-link');
+                if (contact.email) {
+                    emailLink.href = 'mailto:' + contact.email;
+                    emailLink.textContent = contact.email;
+                } else {
+                    emailLink.href = '#';
+                    emailLink.textContent = 'support@manjihub.com';
+                }
+                // Telegram
+                const telegramLink = document.getElementById('contact-telegram-link');
+                if (contact.telegram) {
+                    let tg = contact.telegram.startsWith('http') ? contact.telegram : 'https://t.me/' + contact.telegram.replace(/^@/, '');
+                    telegramLink.href = tg;
+                    telegramLink.textContent = contact.telegram.startsWith('@') ? contact.telegram : '@' + contact.telegram.replace(/^@/, '');
+                } else {
+                    telegramLink.href = 'https://t.me/manjihub';
+                    telegramLink.textContent = '@manjihub';
+                }
+                // Instagram
+                const instaLink = document.getElementById('contact-insta-link');
+                if (contact.insta) {
+                    let ig = contact.insta.startsWith('http') ? contact.insta : 'https://instagram.com/' + contact.insta.replace(/^@/, '');
+                    instaLink.href = ig;
+                    instaLink.textContent = contact.insta.startsWith('@') ? contact.insta : '@' + contact.insta.replace(/^@/, '');
+                } else {
+                    instaLink.href = 'https://instagram.com/manjihub';
+                    instaLink.textContent = '@manjihub';
+                }
+                // --- Footer Socials ---
+                // Facebook
+                const fbLink = document.getElementById('footer-facebook-link');
+                fbLink.href = contact.facebook && contact.facebook.trim() ? contact.facebook : '#';
+                // X (Twitter)
+                const xLink = document.getElementById('footer-x-link');
+                if (contact.x) {
+                    let xurl = contact.x.startsWith('http') ? contact.x : 'https://x.com/' + contact.x.replace(/^@/, '');
+                    xLink.href = xurl;
+                } else {
+                    xLink.href = 'https://x.com/';
+                }
+                // Instagram
+                const fInstaLink = document.getElementById('footer-insta-link');
+                if (contact.insta) {
+                    let ig = contact.insta.startsWith('http') ? contact.insta : 'https://instagram.com/' + contact.insta.replace(/^@/, '');
+                    fInstaLink.href = ig;
+                } else {
+                    fInstaLink.href = 'https://instagram.com/manjihub';
+                }
+                // Telegram
+                const fTgLink = document.getElementById('footer-telegram-link');
+                if (contact.telegram) {
+                    let tg = contact.telegram.startsWith('http') ? contact.telegram : 'https://t.me/' + contact.telegram.replace(/^@/, '');
+                    fTgLink.href = tg;
+                } else {
+                    fTgLink.href = 'https://t.me/manjihub';
+                }
             });
         });
     </script>

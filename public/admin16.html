@@ -204,94 +204,11 @@
       document.getElementById('contact-facebook').value = info.facebook || '';
       document.getElementById('contact-x').value = info.x || '';
     }
-    document.getElementById('contact-form').onsubmit = async function(e) {
-      e.preventDefault();
-      const email = document.getElementById('contact-email').value.trim();
-      const insta = document.getElementById('contact-insta').value.trim();
-      const telegram = document.getElementById('contact-telegram').value.trim();
-      const facebook = document.getElementById('contact-facebook').value.trim();
-      const x = document.getElementById('contact-x').value.trim();
-      await saveContact({ email, insta, telegram, facebook, x });
-      alert('Contact info saved!');
-    };
-    // Dark mode on admin page (handled by system or previous setting)
-    // --- Admin Login Logic ---
-    const loginBlock = document.getElementById('login-block');
-    const dashboard = document.getElementById('admin-dashboard');
-    const loginForm = document.getElementById('admin-login-form');
-    const loginError = document.getElementById('admin-login-error');
-    loginForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const user = document.getElementById('admin-username').value.trim();
-      const pass = document.getElementById('admin-password').value;
-      if (user === ADMIN_USER && pass === ADMIN_PASS) {
-        loginBlock.classList.add('hidden');
-        dashboard.classList.remove('hidden');
-        document.getElementById('logout-btn').classList.remove('hidden');
-        await renderAdminGroups('admin-groups-list', onEditGroup, onDeleteGroup);
-        await renderContactForm();
-      } else {
-        loginError.classList.remove('hidden');
-      }
+    // On page load, render contact and groups (read-only)
+    document.addEventListener('DOMContentLoaded', function() {
+      renderContactForm();
+      renderAdminGroups('admin-groups-list', () => {}, () => {});
     });
-    // --- Admin Dashboard Logic ---
-    document.getElementById('logout-btn').onclick = function() {
-      dashboard.classList.add('hidden');
-      loginBlock.classList.remove('hidden');
-      loginForm.reset();
-      this.classList.add('hidden');
-    };
-    document.getElementById('add-group-btn').onclick = function() {
-      openGroupModal();
-    };
-    // Modal logic
-    const groupModalBg = document.getElementById('group-modal-bg');
-    const closeGroupModalBtn = document.getElementById('close-group-modal');
-    closeGroupModalBtn.onclick = function() { groupModalBg.classList.add('hidden'); };
-    groupModalBg.onclick = function(e) { if (e.target === groupModalBg) groupModalBg.classList.add('hidden'); };
-    let editIndex = null;
-    function openGroupModal(group) {
-      groupModalBg.classList.remove('hidden');
-      document.getElementById('group-modal-title').textContent = group ? 'Edit Group' : 'Add Group';
-      document.getElementById('group-name').value = group ? group.name : '';
-      document.getElementById('group-category').value = group ? group.category : '';
-      document.getElementById('group-description').value = group ? group.description : '';
-      document.getElementById('group-link').value = group ? group.link : '';
-      document.getElementById('group-image').value = group ? group.image : '';
-    }
-    async function onEditGroup(idx) {
-      const groups = await getGroups();
-      editIndex = idx;
-      openGroupModal(groups[idx]);
-    }
-    async function onDeleteGroup(idx) {
-      if (!confirm('Delete this group?')) return;
-      const groups = await getGroups();
-      groups.splice(idx, 1);
-      await saveGroups(groups);
-      await renderAdminGroups('admin-groups-list', onEditGroup, onDeleteGroup);
-    }
-    document.getElementById('group-form').onsubmit = async function(e) {
-      e.preventDefault();
-      const name = document.getElementById('group-name').value.trim();
-      const category = document.getElementById('group-category').value.trim();
-      const description = document.getElementById('group-description').value.trim();
-      const link = document.getElementById('group-link').value.trim();
-      const image = document.getElementById('group-image').value.trim();
-      if (!name || !link || !description) return alert('Name, link, and description are required.');
-      const groups = await getGroups();
-      const group = { name, category, description, link, image };
-      if (editIndex !== null) {
-        groups[editIndex] = group;
-        editIndex = null;
-      } else {
-        groups.push(group);
-      }
-      await saveGroups(groups);
-      groupModalBg.classList.add('hidden');
-      await renderAdminGroups('admin-groups-list', onEditGroup, onDeleteGroup);
-      this.reset();
-    };
   </script>
 </body>
 </html> 
